@@ -84,7 +84,7 @@ local CT = Instance.new("TextLabel", HB)
 CT.Size = UDim2.new(0, 200, 0, 12)
 CT.Position = UDim2.new(0, 56, 0, 30)
 CT.BackgroundTransparency = 1
-CT.Text = "by PyroVex Team"
+CT.Text = "by kingflame/pyrovex team"
 CT.TextColor3 = C.sub; CT.TextSize = 9
 CT.Font = Enum.Font.Code; CT.TextXAlignment = Enum.TextXAlignment.Left
 
