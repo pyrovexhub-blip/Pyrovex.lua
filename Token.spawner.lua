@@ -1,702 +1,788 @@
--- PYROVEX HUB | PREMIUM KEY SYSTEM + TOKEN SPOOFER
--- By Kingflame | Pyrovex Team
--- Delta-Friendly Version
-
 local GrowAGarden_PlaceID = 126884695634066
+
 if game.PlaceId ~= GrowAGarden_PlaceID then
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "PYROVEX HUB", Text = "Exclusive to Grow a Garden!", Duration = 5
+        Title = "PYROVEX HUB",
+        Text = "Exclusive to Grow a Garden!",
+        Duration = 5
     })
+
     return
 end
 
--- Cleanup
-if _G.TLoop then _G.TLoop = false end
-local CoreGui = game:GetService("CoreGui")
-if CoreGui:FindFirstChild("PyroVexHub") then CoreGui.PyroVexHub:Destroy() end
-if CoreGui:FindFirstChild("PyrovexKeyUI") then CoreGui.PyrovexKeyUI:Destroy() end
+--==================================================
+-- PYROVEX HUB | PREMIUM UI + TOKEN SPOOFER
+-- VERSION: 1.0 — FULLY COMBINED & FIXED
+--==================================================
 
-local TS = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local ContentProvider = game:GetService("ContentProvider")
+local RunService = game:GetService("RunService")
 
-local tInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local tInfoFast = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- 🎨 COLORS
-local C = {
-    black = Color3.fromRGB(10, 8, 14),
-    darkGrey = Color3.fromRGB(30, 28, 36),
-    grey = Color3.fromRGB(50, 48, 60),
-    lightGrey = Color3.fromRGB(110, 105, 125),
-    silver = Color3.fromRGB(170, 165, 185),
-    crimson = Color3.fromRGB(180, 28, 55),
-    crimson2 = Color3.fromRGB(220, 45, 80),
-    purple = Color3.fromRGB(165, 80, 255),
-    purple2 = Color3.fromRGB(95, 55, 190),
-    white = Color3.fromRGB(245, 240, 255),
-    muted = Color3.fromRGB(145, 135, 165),
-    success = Color3.fromRGB(115, 255, 170),
-    error = Color3.fromRGB(255, 100, 125)
+--==================================================
+-- SETTINGS
+--==================================================
+
+local ValidKeys = {
+	["103958274619385"] = true,
+	["482957103629485"] = true,
+	["827461935082746"] = true,
+	["395827461059283"] = true,
+	["741958263047182"] = true,
+	["582947103628471"] = true,
+	["519384726105839"] = true
 }
 
--- 🔑 KEY LIST
-local KEYS = {
-    ["519384726105839"] = true,
-    ["741958263047182"] = true,
-    ["395827461059283"] = true,
-    ["827461935082746"] = true,
-    ["482957103629485"] = true,
-    ["103958274619385"] = true,
-    ["582947103628471"] = true,
-}
+local DiscordLink = "https://discord.gg/fUWAW9vB4"
 
-local function fCom(n)
-    local s = tostring(n):gsub(",", "")
-    while true do local r; s, r = s:gsub("^(-?%d+)(%d%d%d)", "%1,%2"); if r == 0 then break end end
-    return s
+local PRIMARY_IMAGE = "rbxasset://textures/ui/common/robux@3x.png"
+local FALLBACK_IMAGE = "rbxassetid://18469541748"
+
+local Purple = Color3.fromRGB(135, 75, 255)
+local Crimson = Color3.fromRGB(235, 55, 105)
+local Blue = Color3.fromRGB(70, 115, 255)
+
+local Dark = Color3.fromRGB(10, 8, 18)
+local PanelDark = Color3.fromRGB(20, 16, 32)
+local CardDark = Color3.fromRGB(29, 23, 44)
+
+local White = Color3.fromRGB(250, 247, 255)
+local Muted = Color3.fromRGB(155, 146, 174)
+local Green = Color3.fromRGB(90, 230, 145)
+
+local FastTween = TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local SmoothTween = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local PopTween = TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+
+--==================================================
+-- PARENT
+--==================================================
+
+local ParentGui = (gethui and gethui()) or CoreGui
+
+pcall(function()
+	local Old = ParentGui:FindFirstChild("PyrovexTokenSpawner")
+	if Old then Old:Destroy() end
+end)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PyrovexTokenSpawner"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+pcall(function() ScreenGui.Parent = ParentGui end)
+if not ScreenGui.Parent then ScreenGui.Parent = PlayerGui end
+
+--==================================================
+-- HELPERS
+--==================================================
+
+local function Tween(Object, Info, Properties)
+	local Animation = TweenService:Create(Object, Info, Properties)
+	Animation:Play()
+	return Animation
 end
 
--- ======================================
--- 🔑 KEY SYSTEM UI
--- ======================================
-local keyGui = Instance.new("ScreenGui")
-keyGui.Name = "PyrovexKeyUI"
-keyGui.ResetOnSpawn = false
-keyGui.IgnoreGuiInset = true
-keyGui.Parent = CoreGui
-
-local keyMain = Instance.new("Frame")
-keyMain.Name = "Main"
-keyMain.AnchorPoint = Vector2.new(0.5, 0.5)
-keyMain.Position = UDim2.fromScale(0.5, 0.5)
-keyMain.Size = UDim2.fromOffset(0, 0)
-keyMain.BackgroundColor3 = Color3.fromRGB(14, 12, 21)
-keyMain.ClipsDescendants = true
-keyMain.Parent = keyGui
-
-Instance.new("UICorner", keyMain).CornerRadius = UDim.new(0, 14)
-
-local keyBorder = Instance.new("UIStroke")
-keyBorder.Color = C.purple
-keyBorder.Thickness = 1.4
-keyBorder.Transparency = 0.15
-keyBorder.Parent = keyMain
-
-local topLine = Instance.new("Frame")
-topLine.Size = UDim2.new(1, 0, 0, 3)
-topLine.BackgroundColor3 = C.purple
-topLine.Parent = keyMain
-
-local header = Instance.new("Frame")
-header.Name = "DragBar"
-header.Size = UDim2.new(1, 0, 0, 55)
-header.BackgroundColor3 = Color3.fromRGB(24, 20, 34)
-header.Active = true
-header.Parent = keyMain
-Instance.new("UICorner", header).CornerRadius = UDim.new(0, 14)
-
-local logo = Instance.new("Frame")
-logo.Position = UDim2.fromOffset(14, 12)
-logo.Size = UDim2.fromOffset(32, 32)
-logo.BackgroundColor3 = C.purple
-logo.Parent = header
-Instance.new("UICorner", logo).CornerRadius = UDim.new(0, 9)
-
-local logoText = Instance.new("TextLabel")
-logoText.Size = UDim2.fromScale(1, 1)
-logoText.BackgroundTransparency = 1
-logoText.Text = "P"
-logoText.TextColor3 = C.white
-logoText.Font = Enum.Font.GothamBlack
-logoText.TextSize = 20
-logoText.Parent = logo
-
-local title = Instance.new("TextLabel")
-title.Position = UDim2.fromOffset(56, 10)
-title.Size = UDim2.new(1, -105, 0, 20)
-title.BackgroundTransparency = 1
-title.Text = "PYROVEX HUB"
-title.TextColor3 = C.white
-title.Font = Enum.Font.GothamBold
-title.TextSize = 15
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = header
-
-local subtitle = Instance.new("TextLabel")
-subtitle.Position = UDim2.fromOffset(57, 30)
-subtitle.Size = UDim2.new(1, -110, 0, 13)
-subtitle.BackgroundTransparency = 1
-subtitle.Text = "PREMIUM ACCESS  /  KEY SYSTEM"
-subtitle.TextColor3 = C.muted
-subtitle.Font = Enum.Font.GothamMedium
-subtitle.TextSize = 8
-subtitle.TextXAlignment = Enum.TextXAlignment.Left
-subtitle.Parent = header
-
-local closeKey = Instance.new("TextButton")
-closeKey.Position = UDim2.new(1, -37, 0, 13)
-closeKey.Size = UDim2.fromOffset(24, 24)
-closeKey.BackgroundColor3 = Color3.fromRGB(49, 28, 53)
-closeKey.Text = "×"
-closeKey.TextColor3 = Color3.fromRGB(240, 160, 255)
-closeKey.Font = Enum.Font.GothamMedium
-closeKey.TextSize = 20
-closeKey.AutoButtonColor = false
-closeKey.Parent = header
-Instance.new("UICorner", closeKey).CornerRadius = UDim.new(0, 7)
-
-local badge = Instance.new("TextLabel")
-badge.Position = UDim2.fromOffset(18, 70)
-badge.Size = UDim2.fromOffset(105, 22)
-badge.BackgroundColor3 = Color3.fromRGB(42, 28, 60)
-badge.Text = "  ◆  SECURE GATE"
-badge.TextColor3 = Color3.fromRGB(205, 160, 255)
-badge.Font = Enum.Font.GothamBold
-badge.TextSize = 9
-badge.TextXAlignment = Enum.TextXAlignment.Left
-badge.Parent = keyMain
-Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 6)
-
-local heading = Instance.new("TextLabel")
-heading.Position = UDim2.fromOffset(18, 101)
-heading.Size = UDim2.new(1, -36, 0, 25)
-heading.BackgroundTransparency = 1
-heading.Text = "Unlock Your Access"
-heading.TextColor3 = C.white
-heading.Font = Enum.Font.GothamBold
-heading.TextSize = 19
-heading.TextXAlignment = Enum.TextXAlignment.Left
-heading.Parent = keyMain
-
-local description = Instance.new("TextLabel")
-description.Position = UDim2.fromOffset(19, 128)
-description.Size = UDim2.new(1, -38, 0, 18)
-description.BackgroundTransparency = 1
-description.Text = "Enter your access key to continue."
-description.TextColor3 = C.muted
-description.Font = Enum.Font.Gotham
-description.TextSize = 10
-description.TextXAlignment = Enum.TextXAlignment.Left
-description.Parent = keyMain
-
-local inputLabel = Instance.new("TextLabel")
-inputLabel.Position = UDim2.fromOffset(19, 157)
-inputLabel.Size = UDim2.new(1, -38, 0, 15)
-inputLabel.BackgroundTransparency = 1
-inputLabel.Text = "ACCESS KEY"
-inputLabel.TextColor3 = Color3.fromRGB(190, 175, 210)
-inputLabel.Font = Enum.Font.GothamBold
-inputLabel.TextSize = 9
-inputLabel.TextXAlignment = Enum.TextXAlignment.Left
-inputLabel.Parent = keyMain
-
-local keyInput = Instance.new("TextBox")
-keyInput.Position = UDim2.fromOffset(18, 177)
-keyInput.Size = UDim2.new(1, -36, 0, 39)
-keyInput.BackgroundColor3 = Color3.fromRGB(29, 24, 40)
-keyInput.TextColor3 = C.white
-keyInput.PlaceholderText = "15-digit key..."
-keyInput.PlaceholderColor3 = Color3.fromRGB(115, 105, 130)
-keyInput.Font = Enum.Font.Code
-keyInput.TextSize = 14
-keyInput.ClearTextOnFocus = false
-keyInput.Text = ""
-keyInput.BorderSizePixel = 0
-keyInput.Parent = keyMain
-Instance.new("UICorner", keyInput).CornerRadius = UDim.new(0, 8)
-
-local inputBorder = Instance.new("UIStroke")
-inputBorder.Color = Color3.fromRGB(69, 54, 88)
-inputBorder.Thickness = 1
-inputBorder.Parent = keyInput
-
-local keyStatus = Instance.new("TextLabel")
-keyStatus.Position = UDim2.fromOffset(19, 221)
-keyStatus.Size = UDim2.new(1, -38, 0, 15)
-keyStatus.BackgroundTransparency = 1
-keyStatus.Text = "●  READY FOR VERIFICATION"
-keyStatus.TextColor3 = C.muted
-keyStatus.Font = Enum.Font.GothamMedium
-keyStatus.TextSize = 9
-keyStatus.TextXAlignment = Enum.TextXAlignment.Left
-keyStatus.Parent = keyMain
-
-local submitKey = Instance.new("TextButton")
-submitKey.Position = UDim2.fromOffset(18, 243)
-submitKey.Size = UDim2.new(1, -36, 0, 37)
-submitKey.BackgroundColor3 = Color3.fromRGB(135, 65, 225)
-submitKey.Text = "VERIFY ACCESS     →"
-submitKey.TextColor3 = C.white
-submitKey.Font = Enum.Font.GothamBold
-submitKey.TextSize = 11
-submitKey.AutoButtonColor = false
-submitKey.Parent = keyMain
-Instance.new("UICorner", submitKey).CornerRadius = UDim.new(0, 8)
-
--- Drag Function for Key UI
-local dragging, dragStart, startPos
-header.InputBegan:Connect(function(inp)
-    if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = inp.Position
-        startPos = keyMain.Position
-        inp.Changed:Connect(function()
-            if inp.UserInputState == Enum.UserInputState.End then dragging = false end
-        end)
-    end
-end)
-UIS.InputChanged:Connect(function(inp)
-    if dragging and (inp.UserInputType == Enum.UserInputType.MouseMovement) then
-        local delta = inp.Position - dragStart
-        keyMain.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
--- Open Animation
-TS:Create(keyMain, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-    Size = UDim2.fromOffset(330, 300), BackgroundTransparency = 0
-}):Play()
-
--- Key Input Filter
-keyInput:GetPropertyChangedSignal("Text"):Connect(function()
-    local cleaned = keyInput.Text:gsub("%D", ""):sub(1, 15)
-    if keyInput.Text ~= cleaned then keyInput.Text = cleaned end
-end)
-
-local function setKeyStatus(text, color)
-    keyStatus.Text = text
-    keyStatus.TextColor3 = color
+local function Corner(Object, Radius)
+	local C = Instance.new("UICorner")
+	C.CornerRadius = UDim.new(0, Radius)
+	C.Parent = Object
+	return C
 end
 
-local keyBusy = false
-local function openMainUI()
-    -- Destroy Key UI with animation
-    local fade = TS:Create(keyMain, TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
-        Size = UDim2.fromOffset(0, 0), BackgroundTransparency = 1
-    })
-    fade:Play()
-    fade.Completed:Wait()
-    keyGui:Destroy()
-
-    -- ======================================
-    -- 🎯 MAIN TOKEN SPOOFER UI
-    -- ======================================
-    local mainGui = Instance.new("ScreenGui")
-    mainGui.Name = "PyroVexHub"
-    mainGui.ResetOnSpawn = false
-    mainGui.Parent = CoreGui
-
-    local MF = Instance.new("Frame")
-    MF.Size = UDim2.new(0, 340, 0, 330)
-    MF.Position = UDim2.new(0.5, -170, 0.4, -165)
-    MF.BackgroundColor3 = C.black
-    MF.Active = true
-    MF.Draggable = true
-    Instance.new("UICorner", MF).CornerRadius = UDim.new(0, 20)
-    MF.Parent = mainGui
-
-    Instance.new("UIStroke", MF).Color = C.crimson
-
-    -- Top Bar
-    local HB = Instance.new("Frame", MF)
-    HB.Size = UDim2.new(1, 0, 0, 60)
-    HB.BackgroundColor3 = C.darkGrey
-    Instance.new("UICorner", HB).CornerRadius = UDim.new(0, 20)
-
-    local LogoContainer = Instance.new("Frame", HB)
-    LogoContainer.Size = UDim2.new(0, 36, 0, 36)
-    LogoContainer.Position = UDim2.new(0, 14, 0, 12)
-    LogoContainer.BackgroundColor3 = C.black
-    Instance.new("UICorner", LogoContainer).CornerRadius = UDim.new(0, 12)
-    Instance.new("UIStroke", LogoContainer).Color = C.crimson
-
-    local LogoP = Instance.new("TextLabel", LogoContainer)
-    LogoP.Size = UDim2.new(1, 0, 1, 0)
-    LogoP.BackgroundTransparency = 1
-    LogoP.Text = "P"
-    LogoP.TextColor3 = C.white
-    LogoP.TextSize = 22
-    LogoP.Font = Enum.Font.GothamBold
-    LogoP.Parent = LogoContainer
-
-    local TL = Instance.new("TextLabel", HB)
-    TL.Size = UDim2.new(0, 220, 0, 22)
-    TL.Position = UDim2.new(0, 62, 0, 10)
-    TL.BackgroundTransparency = 1
-    TL.Text = "PYRO VEX HUB"
-    TL.TextColor3 = C.crimson2
-    TL.TextSize = 15
-    TL.Font = Enum.Font.GothamBold
-    TL.TextXAlignment = Enum.TextXAlignment.Left
-    TL.Parent = HB
-
-    local CT = Instance.new("TextLabel", HB)
-    CT.Size = UDim2.new(0, 220, 0, 12)
-    CT.Position = UDim2.new(0, 62, 0, 34)
-    CT.BackgroundTransparency = 1
-    CT.Text = "Grow a Garden — Token Spoofer"
-    CT.TextColor3 = C.silver
-    CT.TextSize = 10
-    CT.Font = Enum.Font.Gotham
-    CT.TextXAlignment = Enum.TextXAlignment.Left
-    CT.Parent = HB
-
-    local CloseC = Instance.new("TextButton", HB)
-    CloseC.Size = UDim2.new(0, 28, 0, 28)
-    CloseC.Position = UDim2.new(1, -40, 0, 16)
-    CloseC.BackgroundColor3 = C.grey
-    CloseC.Text = "×"
-    CloseC.TextColor3 = C.white
-    CloseC.TextSize = 20
-    CloseC.Font = Enum.Font.GothamBold
-    CloseC.AutoLocalize = false
-    Instance.new("UICorner", CloseC).CornerRadius = UDim.new(0, 8)
-    Instance.new("UIStroke", CloseC).Color = C.crimson
-    CloseC.Parent = HB
-
-    local MinC = Instance.new("TextButton", HB)
-    MinC.Size = UDim2.new(0, 28, 0, 28)
-    MinC.Position = UDim2.new(1, -76, 0, 16)
-    MinC.BackgroundColor3 = C.grey
-    MinC.Text = "−"
-    MinC.TextColor3 = C.white
-    MinC.TextSize = 20
-    MinC.Font = Enum.Font.GothamBold
-    MinC.AutoLocalize = false
-    Instance.new("UICorner", MinC).CornerRadius = UDim.new(0, 8)
-    Instance.new("UIStroke", MinC).Color = C.purple
-    MinC.Parent = HB
-
-    local NB = Instance.new("TextButton", mainGui)
-    NB.Size = UDim2.new(0, 50, 0, 50)
-    NB.Position = UDim2.new(0, 14, 0.5, -25)
-    NB.BackgroundColor3 = C.black
-    NB.Text = "P"
-    NB.TextColor3 = C.white
-    NB.TextSize = 22
-    NB.Font = Enum.Font.GothamBold
-    NB.Active = true
-    NB.Draggable = true
-    NB.Visible = false
-    Instance.new("UICorner", NB).CornerRadius = UDim.new(0, 14)
-    Instance.new("UIStroke", NB).Color = C.purple
-    NB.Parent = mainGui
-
-    -- Section
-    local Sec1 = Instance.new("Frame", MF)
-    Sec1.Size = UDim2.new(1, -32, 0, 70)
-    Sec1.Position = UDim2.new(0, 16, 0, 80)
-    Sec1.BackgroundColor3 = C.darkGrey
-    Instance.new("UICorner", Sec1).CornerRadius = UDim.new(0, 14)
-    Instance.new("UIStroke", Sec1).Color = C.lightGrey
-    Sec1.Parent = MF
-
-    local L1 = Instance.new("TextLabel", Sec1)
-    L1.Size = UDim2.new(0, 180, 0, 20)
-    L1.Position = UDim2.new(0, 16, 0, 12)
-    L1.BackgroundTransparency = 1
-    L1.Text = "Token Spoofer"
-    L1.TextColor3 = C.white
-    L1.TextSize = 14
-    L1.Font = Enum.Font.GothamBold
-    L1.TextXAlignment = Enum.TextXAlignment.Left
-    L1.Parent = Sec1
-
-    local L1Sub = Instance.new("TextLabel", Sec1)
-    L1Sub.Size = UDim2.new(0, 240, 0, 14)
-    L1Sub.Position = UDim2.new(0, 16, 0, 38)
-    L1Sub.BackgroundTransparency = 1
-    L1Sub.Text = "Visual & Purchase Spoofer"
-    L1Sub.TextColor3 = C.silver
-    L1Sub.TextSize = 11
-    L1Sub.Font = Enum.Font.Gotham
-    L1Sub.TextXAlignment = Enum.TextXAlignment.Left
-    L1Sub.Parent = Sec1
-
-    local ToggleStatusText = Instance.new("TextLabel", Sec1)
-    ToggleStatusText.Size = UDim2.new(0, 40, 0, 16)
-    ToggleStatusText.Position = UDim2.new(1, -106, 0.5, -8)
-    ToggleStatusText.BackgroundTransparency = 1
-    ToggleStatusText.Text = "OFF"
-    ToggleStatusText.TextColor3 = C.silver
-    ToggleStatusText.TextSize = 11
-    ToggleStatusText.Font = Enum.Font.GothamBold
-    ToggleStatusText.TextXAlignment = Enum.TextXAlignment.Right
-    ToggleStatusText.Parent = Sec1
-
-    -- Toggle Switch
-    local ToggleBG = Instance.new("TextButton", Sec1)
-    ToggleBG.Size = UDim2.new(0, 52, 0, 26)
-    ToggleBG.Position = UDim2.new(1, -60, 0.5, -13)
-    ToggleBG.BackgroundColor3 = C.grey
-    ToggleBG.Text = ""
-    Instance.new("UICorner", ToggleBG).CornerRadius = UDim.new(1, 0)
-    local ToggleStroke = Instance.new("UIStroke", ToggleBG)
-    ToggleStroke.Color = C.lightGrey
-    ToggleStroke.Thickness = 1.5
-    ToggleBG.Parent = Sec1
-
-    local ToggleCircle = Instance.new("Frame", ToggleBG)
-    ToggleCircle.Size = UDim2.new(0, 20, 0, 20)
-    ToggleCircle.Position = UDim2.new(0, 3, 0.5, -10)
-    ToggleCircle.BackgroundColor3 = C.silver
-    Instance.new("UICorner", ToggleCircle).CornerRadius = UDim.new(1, 0)
-    ToggleCircle.Parent = ToggleBG
-
-    -- Input Box
-    local TX = Instance.new("TextBox", MF)
-    TX.Size = UDim2.new(1, -32, 0, 44)
-    TX.Position = UDim2.new(0, 16, 0, 166)
-    TX.BackgroundColor3 = C.darkGrey
-    TX.Text = "0"
-    TX.PlaceholderText = "Enter token amount..."
-    TX.PlaceholderColor3 = C.lightGrey
-    TX.TextColor3 = C.white
-    TX.TextSize = 14
-    TX.Font = Enum.Font.GothamBold
-    Instance.new("UICorner", TX).CornerRadius = UDim.new(0, 12)
-    Instance.new("UIStroke", TX).Color = C.lightGrey
-    TX.Parent = MF
-
-    TX:GetPropertyChangedSignal("Text"):Connect(function()
-        local clean = TX.Text:gsub("%D", "")
-        if TX.Text ~= clean then TX.Text = clean end
-    end)
-
-    -- Apply Button
-    local AB = Instance.new("TextButton", MF)
-    AB.Size = UDim2.new(1, -32, 0, 48)
-    AB.Position = UDim2.new(0, 16, 0, 226)
-    AB.BackgroundColor3 = C.grey
-    AB.Text = "⚡ APPLY TOKEN MATRIX ⚡"
-    AB.AutoLocalize = false
-    AB.TextColor3 = C.silver
-    AB.TextSize = 13
-    AB.Font = Enum.Font.GothamBold
-    Instance.new("UICorner", AB).CornerRadius = UDim.new(0, 12)
-    Instance.new("UIStroke", AB).Color = C.lightGrey
-    AB.Parent = MF
-
-    -- Status Log
-    local CL = Instance.new("TextLabel", MF)
-    CL.Size = UDim2.new(1, -32, 0, 22)
-    CL.Position = UDim2.new(0, 16, 0, 292)
-    CL.BackgroundTransparency = 1
-    CL.Text = ">> System: Idle. Toggle switch to begin."
-    CL.TextColor3 = C.silver
-    CL.TextSize = 10
-    CL.Font = Enum.Font.Code
-    CL.TextXAlignment = Enum.TextXAlignment.Left
-    CL.Parent = MF
-
-    -- Variables
-    local isOn, cText, LP = false, "0", Players.LocalPlayer
-    local PlayerGui = LP:WaitForChild("PlayerGui")
-    local targets = {}
-    local currentBalance = 0
-
-    local function lockUI()
-        targets = {}
-        pcall(function()
-            for _, u in pairs(PlayerGui:GetDescendants()) do
-                if u:IsA("TextLabel") or u:IsA("TextBox") then
-                    if not u:IsDescendantOf(workspace) and not u:FindFirstAncestorOfClass("BillboardGui") and not u:FindFirstAncestorOfClass("SurfaceGui") then
-                        local lt = u.Text:lower()
-                        local pn = (u.Parent and u.Parent.Name:lower()) or ""
-                        local gpn = (u.Parent and u.Parent.Parent and u.Parent.Parent.Name:lower()) or ""
-                        if not lt:find("boost") and not lt:find("multiplier") and not lt:find("level") and not lt:find("rebirth") then
-                            if not pn:find("card") and not pn:find("template") and not pn:find("price") and not pn:find("btn") and not pn:find("button") then
-                                if not gpn:find("card") and not gpn:find("template") and not gpn:find("list") then
-                                    if lt:find("tokens:") or lt:find("token:") or pn == "tokens" or pn == "token" then
-                                        table.insert(targets, u)
-                                    elseif u.Text:find("^[%d,]+$") and (pn:find("currency") or pn:find("main") or pn:find("top") or pn:find("bar") or pn:find("trade") or gpn:find("trade")) then
-                                        table.insert(targets, u)
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    end
-
-    -- Buttons
-    CloseC.MouseButton1Click:Connect(function()
-        _G.TLoop = false
-        mainGui:Destroy()
-    end)
-
-    MinC.MouseButton1Click:Connect(function()
-        MF.Visible = false
-        NB.Visible = true
-    end)
-
-    NB.MouseButton1Click:Connect(function()
-        NB.Visible = false
-        MF.Visible = true
-    end)
-
-    ToggleBG.MouseButton1Click:Connect(function()
-        isOn = not isOn
-        if isOn then
-            TS:Create(ToggleCircle, tInfoFast, {Position = UDim2.new(1, -23, 0.5, -10), BackgroundColor3 = C.white}):Play()
-            TS:Create(ToggleBG, tInfoFast, {BackgroundColor3 = C.crimson}):Play()
-            TS:Create(ToggleStroke, tInfoFast, {Color = C.crimson2}):Play()
-            TS:Create(AB, tInfoFast, {BackgroundColor3 = C.crimson}):Play()
-            AB.TextColor3 = C.white
-            ToggleStatusText.Text = "ON"
-            ToggleStatusText.TextColor3 = C.crimson2
-            CL.Text = ">> Status: ACTIVE — Visual hooks engaged."
-            CL.TextColor3 = C.crimson2
-            lockUI()
-        else
-            TS:Create(ToggleCircle, tInfoFast, {Position = UDim2.new(0, 3, 0.5, -10), BackgroundColor3 = C.silver}):Play()
-            TS:Create(ToggleBG, tInfoFast, {BackgroundColor3 = C.grey}):Play()
-                   TS:Create(ToggleStroke, tInfoFast, {Color = C.lightGrey}):Play()
-            TS:Create(AB, tInfoFast, {BackgroundColor3 = C.grey}):Play()
-            AB.TextColor3 = C.silver
-            ToggleStatusText.Text = "OFF"
-            ToggleStatusText.TextColor3 = C.silver
-            CL.Text = ">> Status: DISENGAGED — Normal state restored."
-            CL.TextColor3 = C.silver
-        end
-    end)
-
-    AB.MouseButton1Click:Connect(function()
-        if not isOn then
-            CL.Text = ">> ERROR: Toggle ON first!"
-            CL.TextColor3 = C.crimson2
-            return
-        end
-        lockUI()
-        cText = TX.Text:gsub("%D", "")
-        if cText == "" then cText = "0" end
-        currentBalance = tonumber(cText) or 0
-        local cc = fCom(cText)
-        for _, u in pairs(targets) do
-            pcall(function()
-                local lt = u.Text:lower()
-                if lt:find("tokens:") then u.Text = "Tokens: "..cc
-                elseif lt:find("token:") then u.Text = "Token: "..cc
-                else u.Text = cc end
-            end)
-        end
-        CL.Text = ">> APPLIED: "..cc.." Tokens — Matrix synced."
-        CL.TextColor3 = C.purple
-    end)
-
-    -- Main Loop
-    _G.TLoop = true
-    task.spawn(function()
-        while _G.TLoop do
-            task.wait(0.15)
-            if isOn and cText ~= "" then
-                if #targets == 0 then continue end
-                local cc = fCom(currentBalance)
-                for _, u in pairs(targets) do
-                    pcall(function()
-                        if not u or not u.Parent then return end
-                        local lt = u.Text:lower()
-                        if lt:find("tokens:") then
-                            local newText = "Tokens: "..cc
-                            if u.Text ~= newText then u.Text = newText end
-                        elseif lt:find("token:") then
-                            local newText = "Token: "..cc
-                            if u.Text ~= newText then u.Text = newText end
-                        elseif u.Text ~= cc and not lt:find("token") then
-                            u.Text = cc
-                        end
-                    end)
-                end
-            end
-        end
-    end)
-
-    -- Purchase Detection
-    UIS.InputBegan:Connect(function(i, p)
-        if not isOn or p then return end
-        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-            pcall(function()
-                local c = LP.Character
-                if not c then return end
-                local root = c:FindFirstChild("HumanoidRootPart")
-                if not root then return end
-                local booth, dist, price = nil, 15, 0
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v.Name == "Booth" or v.Name:lower():find("booth") then
-                        local part = v:IsA("BasePart") and v or v:FindFirstChildWhichIsA("BasePart", true)
-                        if part then
-                            local d = (root.Position - part.Position).Magnitude
-                            if d < dist then booth = v; dist = d end
-                        end
-                    end
-                end
-                if booth then
-                    for _, lbl in pairs(booth:GetDescendants()) do
-                        if lbl:IsA("TextLabel") and lbl.Text:find("^[%d,]+$") then
-                            local val = tonumber(lbl.Text:gsub(",", ""))
-                            if val and val > price then price = val end
-                        end
-                    end
-                    if price > 0 and currentBalance >= price then
-                        task.wait(0.1)
-                        currentBalance = currentBalance - price
-                        TX.Text = tostring(currentBalance)
-                        CL.Text = ">> PURCHASE: −"..fCom(price).." Tokens deducted."
-                        CL.TextColor3 = C.purple
-                    end
-                end
-            end)
-        end
-    end)
-
-    -- Hide "Not Enough Tokens"
-    task.spawn(function()
-        while task.wait(0.25) do
-            if not isOn then continue end
-            pcall(function()
-                for _, u in pairs(PlayerGui:GetDescendants()) do
-                    if u:IsA("TextLabel") then
-                        local t = u.Text:lower()
-                        if t:find("don't have enough tokens") or t:find("enough tokens to buy") then
-                            u.Visible = false
-                        end
-                    end
-                end
-            end)
-        end
-    end)
+local function Stroke(Object, Color, Thickness, Transparency)
+	local S = Instance.new("UIStroke")
+	S.Color = Color or Purple
+	S.Thickness = Thickness or 1
+	S.Transparency = Transparency or 0
+	S.Parent = Object
+	return S
 end
 
--- Verify Key Function
-local function validateKey()
-    if keyBusy then return end
-    keyBusy = true
-
-    if KEYS[keyInput.Text] then
-        setKeyStatus("●  ACCESS GRANTED", C.success)
-        submitKey.Text = "VERIFIED  ✓"
-        task.wait(0.55)
-        openMainUI()
-        return
-    else
-        setKeyStatus("●  INVALID KEY — TRY AGAIN", C.error)
-        TS:Create(inputBorder, TweenInfo.new(0.12), {Color = C.error}):Play()
-        task.wait(0.45)
-        if inputBorder.Parent then
-            TS:Create(inputBorder, TweenInfo.new(0.2), {Color = Color3.fromRGB(69, 54, 88)}):Play()
-        end
-    end
-    keyBusy = false
+local function Gradient(Object, Colors, Rotation)
+	local G = Instance.new("UIGradient")
+	G.Color = ColorSequence.new(Colors)
+	G.Rotation = Rotation or 0
+	G.Parent = Object
+	return G
 end
 
-submitKey.Activated:Connect(validateKey)
-keyInput.FocusLost:Connect(function(enterPressed)
-    if enterPressed then validateKey() end
+local function AddAnimatedBorder(Object)
+	local S = Stroke(Object, Purple, 1.7, 0.1)
+	local G = Gradient(S, {
+		ColorSequenceKeypoint.new(0, Purple),
+		ColorSequenceKeypoint.new(0.5, Crimson),
+		ColorSequenceKeypoint.new(1, Blue)
+	}, 0)
+	task.spawn(function()
+		while Object.Parent and G.Parent do
+			G.Rotation = (G.Rotation + 1) % 360
+			task.wait(0.025)
+		end
+	end)
+	return S
+end
+
+local function FormatNumber(Number)
+	Number = tonumber(Number) or 0
+	local Text = tostring(math.floor(Number))
+	while true do
+		local Updated, Count = string.gsub(Text, "^(-?%d+)(%d%d%d)", "%1,%2")
+		Text = Updated
+		if Count == 0 then break end
+	end
+	return Text
+end
+local fCom = FormatNumber
+
+local function CreateLabel(Parent, Text, Size, Position, TextSize, Color, Font)
+	local Label = Instance.new("TextLabel")
+	Label.Size = Size
+	Label.Position = Position
+	Label.BackgroundTransparency = 1
+	Label.Text = Text
+	Label.TextColor3 = Color or White
+	Label.Font = Font or Enum.Font.Gotham
+	Label.TextSize = TextSize or 12
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	Label.Parent = Parent
+	return Label
+end
+
+local function CreateButton(Parent, Text, Size, Position, Color)
+	local Button = Instance.new("TextButton")
+	Button.Size = Size
+	Button.Position = Position
+	Button.BackgroundColor3 = Color or CardDark
+	Button.Text = Text
+	Button.TextColor3 = White
+	Button.Font = Enum.Font.GothamBold
+	Button.TextSize = 11
+	Button.AutoButtonColor = false
+	Button.Parent = Parent
+	Corner(Button, 9)
+	local Scale = Instance.new("UIScale")
+	Scale.Parent = Button
+	Button.MouseEnter:Connect(function() Tween(Scale, FastTween, {Scale = 1.025}) end)
+	Button.MouseLeave:Connect(function() Tween(Scale, FastTween, {Scale = 1}) end)
+	Button.MouseButton1Down:Connect(function() Tween(Scale, FastTween, {Scale = 0.97}) end)
+	Button.MouseButton1Up:Connect(function() Tween(Scale, FastTween, {Scale = 1}) end)
+	return Button
+end
+
+--==================================================
+-- PROFILE
+--==================================================
+
+local function CreateProfile(Parent, Position, Size)
+	local Card = Instance.new("Frame")
+	Card.Size = Size
+	Card.Position = Position
+	Card.BackgroundColor3 = CardDark
+	Card.BorderSizePixel = 0
+	Card.Parent = Parent
+	Corner(Card, 11)
+	Stroke(Card, Purple, 1, 0.55)
+
+	local Avatar = Instance.new("ImageLabel")
+	Avatar.Size = UDim2.fromOffset(43, 43)
+	Avatar.Position = UDim2.fromOffset(10, 9)
+	Avatar.BackgroundColor3 = PanelDark
+	Avatar.Parent = Card
+	Corner(Avatar, 50)
+
+	task.spawn(function()
+		local Success, Image = pcall(function()
+			return Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+		end)
+		if Success and Avatar.Parent then Avatar.Image = Image end
+	end)
+
+	CreateLabel(Card, Player.DisplayName, UDim2.new(1, -70, 0, 22), UDim2.fromOffset(62, 12), 12, White, Enum.Font.GothamBold)
+	CreateLabel(Card, "@" .. Player.Name, UDim2.new(1, -70, 0, 17), UDim2.fromOffset(62, 34), 10, Muted)
+
+	local Online = Instance.new("Frame")
+	Online.Size = UDim2.fromOffset(7, 7)
+	Online.Position = UDim2.new(1, -17, 0, 12)
+	Online.BackgroundColor3 = Green
+	Online.BorderSizePixel = 0
+	Online.Parent = Card
+	Corner(Online, 50)
+
+	return Card
+end
+
+--==================================================
+-- DRAG FUNCTION
+--==================================================
+
+local function MakeDraggable(Handle, Target, OnTap)
+	local Dragging = false
+	local DragInput, DragStart, StartPosition, Moved = nil, nil, nil, false
+
+	Handle.InputBegan:Connect(function(Input)
+		if Input.UserInputType ~= Enum.UserInputType.MouseButton1
+		and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+		Dragging = true
+		Moved = false
+		DragStart = Input.Position
+		StartPosition = Target.Position
+
+		local EndConnection
+		EndConnection = Input.Changed:Connect(function()
+			if Input.UserInputState == Enum.UserInputState.End then
+				Dragging = false
+				if EndConnection then EndConnection:Disconnect() end
+				if not Moved and OnTap then OnTap() end
+			end
+		end)
+	end)
+
+	Handle.InputChanged:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseMovement
+		or Input.UserInputType == Enum.UserInputType.Touch then
+			DragInput = Input
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(Input)
+		if Dragging and (Input == DragInput or Input.UserInputType == Enum.UserInputType.MouseMovement) then
+			local Delta = Input.Position - DragStart
+			if math.abs(Delta.X) > 5 or math.abs(Delta.Y) > 5 then Moved = true end
+			Target.Position = UDim2.new(
+				StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
+				StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
+			)
+		end
+	end)
+end
+
+--==================================================
+-- KEY SYSTEM
+--==================================================
+
+local KeyFrame = Instance.new("Frame")
+KeyFrame.Name = "KeySystem"
+KeyFrame.Size = UDim2.fromOffset(320, 270)
+KeyFrame.Position = UDim2.new(0.5, -160, 0.5, -135)
+KeyFrame.BackgroundColor3 = Dark
+KeyFrame.BorderSizePixel = 0
+KeyFrame.Parent = ScreenGui
+Corner(KeyFrame, 15)
+AddAnimatedBorder(KeyFrame)
+Gradient(KeyFrame, {
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(28, 15, 52)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(17, 10, 27))
+}, 45)
+
+local KeyScale = Instance.new("UIScale")
+KeyScale.Scale = 0.8
+KeyScale.Parent = KeyFrame
+
+local KeyHeader = Instance.new("Frame")
+KeyHeader.Size = UDim2.new(1, 0, 0, 49)
+KeyHeader.BackgroundTransparency = 1
+KeyHeader.Parent = KeyFrame
+
+local KeyLogo = CreateButton(KeyHeader, "P", UDim2.fromOffset(32, 32), UDim2.fromOffset(13, 8), Purple)
+KeyLogo.TextSize = 20
+Gradient(KeyLogo, {ColorSequenceKeypoint.new(0, Purple), ColorSequenceKeypoint.new(1, Crimson)}, 45)
+
+CreateLabel(KeyHeader, "PYROVEX HUB", UDim2.new(1, -100, 0, 21), UDim2.fromOffset(54, 8), 14, White, Enum.Font.GothamBold)
+CreateLabel(KeyHeader, "SECURE KEY VERIFICATION", UDim2.new(1, -100, 0, 14), UDim2.fromOffset(55, 27), 8, Muted)
+
+local KeyClose = CreateButton(KeyHeader, "×", UDim2.fromOffset(27, 27), UDim2.new(1, -39, 0, 10), Color3.fromRGB(90, 28, 48))
+KeyClose.TextSize = 18
+KeyClose.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+CreateProfile(KeyFrame, UDim2.fromOffset(15, 58), UDim2.fromOffset(290, 61))
+CreateLabel(KeyFrame, "ACCESS KEY", UDim2.fromOffset(290, 16), UDim2.fromOffset(15, 129), 9, Muted, Enum.Font.GothamBold)
+
+local KeyInput = Instance.new("TextBox")
+KeyInput.Size = UDim2.fromOffset(290, 35)
+KeyInput.Position = UDim2.fromOffset(15, 148)
+KeyInput.BackgroundColor3 = PanelDark
+KeyInput.PlaceholderText = "Enter your key..."
+KeyInput.PlaceholderColor3 = Muted
+KeyInput.Text = ""
+KeyInput.TextColor3 = White
+KeyInput.Font = Enum.Font.Gotham
+KeyInput.TextSize = 12
+KeyInput.ClearTextOnFocus = false
+KeyInput.Parent = KeyFrame
+Corner(KeyInput, 9)
+
+local KeyStroke = Stroke(KeyInput, Purple, 1.5, 0.35)
+KeyInput.Focused:Connect(function() Tween(KeyStroke, SmoothTween, {Transparency = 0}) end)
+KeyInput.FocusLost:Connect(function() Tween(KeyStroke, SmoothTween, {Transparency = 0.35}) end)
+
+local Status = CreateLabel(KeyFrame, "Enter a valid key to continue.", UDim2.fromOffset(290, 16), UDim2.fromOffset(15, 187), 9, Muted)
+Status.TextXAlignment = Enum.TextXAlignment.Center
+
+local VerifyButton = CreateButton(KeyFrame, "VERIFY KEY", UDim2.fromOffset(290, 31), UDim2.fromOffset(15, 207), Purple)
+Gradient(VerifyButton, {ColorSequenceKeypoint.new(0, Purple), ColorSequenceKeypoint.new(1, Crimson)}, 0)
+
+local DiscordButton = CreateButton(KeyFrame, "DISCORD  •  GET KEY", UDim2.fromOffset(290, 25), UDim2.fromOffset(15, 242), CardDark)
+
+--==================================================
+-- MAIN UI + SPOOFER LOGIC COMBINED
+--==================================================
+
+local function LoadMainUI()
+	if not KeyFrame.Parent then return end
+	KeyFrame:Destroy()
+
+	local Main = Instance.new("Frame")
+	Main.Name = "Main"
+	Main.Size = UDim2.fromOffset(450, 330)
+	Main.Position = UDim2.new(0.5, -225, 0.5, -165)
+	Main.BackgroundColor3 = Dark
+	Main.BorderSizePixel = 0
+	Main.Parent = ScreenGui
+	Corner(Main, 16)
+	AddAnimatedBorder(Main)
+	Gradient(Main, {
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(28, 15, 52)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(14, 11, 25)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(42, 12, 32))
+	}, 45)
+
+	local MainScale = Instance.new("UIScale")
+	MainScale.Scale = 0.8
+	MainScale.Parent = Main
+
+	local Header = Instance.new("Frame")
+	Header.Size = UDim2.new(1, 0, 0, 48)
+	Header.BackgroundTransparency = 1
+	Header.Parent = Main
+
+	local Logo = CreateButton(Header, "P", UDim2.fromOffset(33, 33), UDim2.fromOffset(13, 8), Purple)
+	Logo.TextSize = 21
+	Gradient(Logo, {ColorSequenceKeypoint.new(0, Purple), ColorSequenceKeypoint.new(1, Crimson)}, 45)
+
+	CreateLabel(Header, "PYROVEX HUB", UDim2.new(1, -145, 0, 21), UDim2.fromOffset(55, 8), 14, White, Enum.Font.GothamBold)
+	CreateLabel(Header, "PREMIUM TOKEN INTERFACE", UDim2.new(1, -145, 0, 14), UDim2.fromOffset(56, 27), 8, Muted)
+
+	local Close = CreateButton(Header, "×", UDim2.fromOffset(27, 27), UDim2.new(1, -38, 0, 10), Color3.fromRGB(95, 27, 49))
+	Close.TextSize = 18
+	Close.MouseButton1Click:Connect(function()
+		_G.TokenLoopRunning = false
+		ScreenGui:Destroy()
+	end)
+
+	local Minimize = CreateButton(Header, "−", UDim2.fromOffset(27, 27), UDim2.new(1, -70, 0, 10), CardDark)
+	Minimize.TextSize = 19
+
+	CreateProfile(Main, UDim2.fromOffset(15, 58), UDim2.fromOffset(195, 62))
+
+	CreateLabel(Main, "TOKEN AMOUNT", UDim2.fromOffset(195, 17), UDim2.fromOffset(15, 130), 10, White, Enum.Font.GothamBold)
+
+	local InputBox = Instance.new("TextBox")
+	InputBox.Size = UDim2.fromOffset(195, 37)
+	InputBox.Position = UDim2.fromOffset(15, 151)
+	InputBox.BackgroundColor3 = PanelDark
+	InputBox.PlaceholderText = "Enter amount..."
+	InputBox.PlaceholderColor3 = Muted
+	InputBox.Text = ""
+	InputBox.TextColor3 = White
+	InputBox.Font = Enum.Font.Gotham
+	InputBox.TextSize = 12
+	InputBox.ClearTextOnFocus = false
+	InputBox.Parent = Main
+	Corner(InputBox, 9)
+
+	local InputStroke = Stroke(InputBox, Purple, 1.5, 0.4)
+	InputBox.Focused:Connect(function() Tween(InputStroke, SmoothTween, {Color = Crimson, Transparency = 0}) end)
+	InputBox.FocusLost:Connect(function() Tween(InputStroke, SmoothTween, {Color = Purple, Transparency = 0.4}) end)
+	InputBox:GetPropertyChangedSignal("Text"):Connect(function()
+		local Clean = InputBox.Text:gsub("%D", "")
+		if InputBox.Text ~= Clean then InputBox.Text = Clean end
+	end)
+
+	local Apply = CreateButton(Main, "APPLY PREVIEW", UDim2.fromOffset(195, 38), UDim2.fromOffset(15, 199), Purple)
+	Gradient(Apply, {ColorSequenceKeypoint.new(0, Purple), ColorSequenceKeypoint.new(1, Crimson)}, 0)
+
+	local PreviewEnabled = false
+	local PreviewAmount = 0
+	local targets = {}
+	local _G = _G or {}
+	_G.TokenSpooferActive = false
+	_G.TokenAmount = 0
+	_G.TokenLoopRunning = false
+
+	local PreviewCard = Instance.new("Frame")
+	PreviewCard.Name = "VisualTokenPreview"
+PreviewCard.Size = UDim2.fromOffset(195, 50)
+PreviewCard.Position = UDim2.fromOffset(15, 244)
+PreviewCard.BackgroundColor3 = PanelDark
+PreviewCard.BorderSizePixel = 0
+PreviewCard.Parent = Main
+Corner(PreviewCard, 10)
+Stroke(PreviewCard, Purple, 1.2, 0.35)
+
+CreateLabel(PreviewCard, "VISUAL TOKEN PREVIEW", UDim2.fromOffset(125, 14), UDim2.fromOffset(10, 4), 8, Muted, Enum.Font.GothamBold)
+
+local PreviewValue = CreateLabel(PreviewCard, "0", UDim2.fromOffset(105, 23), UDim2.fromOffset(10, 21), 17, White, Enum.Font.GothamBold)
+local PreviewStatus = CreateLabel(PreviewCard, "PREVIEW OFF", UDim2.fromOffset(78, 15), UDim2.fromOffset(110, 29), 7, Muted, Enum.Font.GothamBold)
+PreviewStatus.TextXAlignment = Enum.TextXAlignment.Right
+
+local PreviewToggle = CreateButton(PreviewCard, "OFF", UDim2.fromOffset(42, 20), UDim2.new(1, -52, 0, 3), CardDark)
+PreviewToggle.TextSize = 8
+Corner(PreviewToggle, 10)
+local PreviewToggleStroke = Stroke(PreviewToggle, Purple, 1, 0.35)
+
+--==================================================
+-- SCAN TARGETS FUNCTION
+--==================================================
+
+local function ScanTargets()
+	targets = {}
+	local function Scan(parent)
+		if not parent then return end
+		for _, u in ipairs(parent:GetChildren()) do
+			if u:IsA("TextLabel") then
+				local lt = u.Text:lower()
+				local pn = u.Name:lower()
+				if lt:find("tokens:") or lt:find("token:") 
+				or lt:find("coins:") or lt:find("coin:")
+				or pn == "tokens" or pn == "token"
+				or pn == "coins" or pn == "coin" then
+					table.insert(targets, u)
+				elseif u.Text:find("^[%d,]+$") 
+				and not pn:find("btn") 
+				and not pn:find("button") then
+					local gpn = u.Parent and u.Parent.Name:lower() or ""
+					if gpn:find("currency") or gpn:find("balance")
+					or gpn:find("main") or gpn:find("top") 
+					or gpn:find("bar") or gpn:find("display") then
+						table.insert(targets, u)
+					end
+				end
+			end
+			Scan(u)
+		end
+	end
+	Scan(PlayerGui)
+	print("[Pyrovex Spoofer] Scanned: Found "..#targets.." target(s)")
+end
+
+--==================================================
+-- TOGGLE BUTTON LOGIC
+--==================================================
+
+PreviewToggle.MouseButton1Click:Connect(function()
+	PreviewEnabled = not PreviewEnabled
+	_G.TokenSpooferActive = PreviewEnabled
+	
+	if PreviewEnabled then
+		ScanTargets()
+		PreviewToggle.Text = "ON"
+		Tween(PreviewToggle, FastTween, {BackgroundColor3 = Purple})
+		Tween(PreviewToggleStroke, FastTween, {Color = Crimson, Transparency = 0})
+		PreviewStatus.Text = "SPOOFER: ON"
+		PreviewStatus.TextColor3 = Green
+		print("[Pyrovex Spoofer] ACTIVE — Tokens: "..fCom(_G.TokenAmount))
+	else
+		PreviewToggle.Text = "OFF"
+		Tween(PreviewToggle, FastTween, {BackgroundColor3 = CardDark})
+		Tween(PreviewToggleStroke, FastTween, {Color = Purple, Transparency = 0.35})
+		PreviewStatus.Text = "PREVIEW OFF"
+		PreviewStatus.TextColor3 = Muted
+		print("[Pyrovex Spoofer] DEACTIVATED")
+	end
 end)
 
-closeKey.Activated:Connect(function()
-    keyGui:Destroy()
+--==================================================
+-- APPLY BUTTON LOGIC
+--==================================================
+
+Apply.MouseButton1Click:Connect(function()
+	local raw = InputBox.Text:gsub("%D", "")
+	local amount = tonumber(raw) or 0
+	
+	if not PreviewEnabled then
+		PreviewStatus.Text = "TURN ON FIRST"
+		PreviewStatus.TextColor3 = Crimson
+		task.delay(1.5, function()
+			if PreviewStatus.Parent then
+				PreviewStatus.Text = PreviewEnabled and "SPOOFER: ON" or "PREVIEW OFF"
+				PreviewStatus.TextColor3 = PreviewEnabled and Green or Muted
+			end
+		end)
+		return
+	end
+	
+	if amount <= 0 then
+		PreviewStatus.Text = "INVALID AMOUNT"
+		PreviewStatus.TextColor3 = Crimson
+		task.delay(1.5, function()
+			if PreviewStatus.Parent then
+				PreviewStatus.Text = PreviewEnabled and "SPOOFER: ON" or "PREVIEW OFF"
+				PreviewStatus.TextColor3 = PreviewEnabled and Green or Muted
+			end
+		end)
+		return
+	end
+	
+	_G.TokenAmount = amount
+	PreviewAmount = amount
+	PreviewValue.Text = FormatNumber(amount)
+	PreviewStatus.Text = "PREVIEW UPDATED"
+	PreviewStatus.TextColor3 = Green
+	
+	Tween(PreviewValue, PopTween, {TextColor3 = Green})
+	task.delay(0.5, function()
+		if PreviewValue.Parent then
+			Tween(PreviewValue, SmoothTween, {TextColor3 = White})
+		end
+	end)
+	
+	print("[Pyrovex Spoofer] Amount set: "..fCom(amount))
+	task.delay(1.2, function()
+		if PreviewStatus.Parent then
+			PreviewStatus.Text = PreviewEnabled and "SPOOFER: ON" or "PREVIEW OFF"
+			PreviewStatus.TextColor3 = PreviewEnabled and Green or Muted
+		end
+	end)
 end)
+
+--==================================================
+-- MAIN UPDATE LOOP
+--==================================================
+
+_G.TokenLoopRunning = true
+task.spawn(function()
+	while _G.TokenLoopRunning and task.wait(0.15) do
+		if not _G.TokenSpooferActive or _G.TokenAmount <= 0 then
+			continue
+		end
+		
+		local formatted = fCom(_G.TokenAmount)
+		
+		for _, u in ipairs(targets) do
+			if not u:IsDescendantOf(PlayerGui) then continue end
+			
+			local original = u.Text
+			local lower = original:lower()
+			
+			if lower:match("tokens?:") or lower:match("coins?:") then
+				local newText = lower:gsub(
+					"([a-zA-Z]+%s*:%s*)[%d%,]+",
+					function(prefix)
+						return prefix:gsub("^%l", string.upper) .. formatted
+					end
+				)
+				if u.Text ~= newText then
+					u.Text = newText
+				end
+			elseif original:find("^[%d%,]+$") then
+				if u.Text ~= formatted then
+					u.Text = formatted
+				end
+			end
+		end
+	end
+end)
+
+--==================================================
+-- RECOMMENDED AMOUNTS PANEL
+--==================================================
+
+CreateLabel(Main, "RECOMMENDED", UDim2.fromOffset(210, 20), UDim2.fromOffset(230, 58), 12, White, Enum.Font.GothamBold)
+CreateLabel(Main, "SELECT YOUR AMOUNT", UDim2.fromOffset(210, 15), UDim2.fromOffset(230, 79), 8, Muted)
+
+local Panel = Instance.new("Frame")
+Panel.Size = UDim2.fromOffset(205, 169)
+Panel.Position = UDim2.fromOffset(230, 101)
+Panel.BackgroundColor3 = PanelDark
+Panel.BorderSizePixel = 0
+Panel.Parent = Main
+Corner(Panel, 11)
+Stroke(Panel, Purple, 1, 0.55)
+
+local function LoadRobuxImage(ImageLabel)
+	task.spawn(function()
+		ImageLabel.Image = PRIMARY_IMAGE
+		local Success = pcall(function()
+			ContentProvider:PreloadAsync({ImageLabel})
+		end)
+		if not Success or not ImageLabel.IsLoaded then
+			ImageLabel.Image = FALLBACK_IMAGE
+			pcall(function() ContentProvider:PreloadAsync({ImageLabel}) end)
+		end
+	end)
+end
+
+local Amounts = {"50", "250", "1000", "5000", "25000"}
+for Index, Amount in ipairs(Amounts) do
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(1, -12, 0, 27)
+	Button.Position = UDim2.fromOffset(6, 5 + ((Index - 1) * 32))
+	Button.BackgroundColor3 = CardDark
+	Button.Text = ""
+	Button.AutoButtonColor = false
+	Button.Parent = Panel
+	Corner(Button, 7)
+	local ButtonStroke = Stroke(Button, Purple, 1, 0.8)
+	
+	local Icon = Instance.new("ImageLabel")
+	Icon.Size = UDim2.fromOffset(17, 17)
+	Icon.Position = UDim2.fromOffset(9, 5)
+	Icon.BackgroundTransparency = 1
+	Icon.ScaleType = Enum.ScaleType.Fit
+	Icon.Parent = Button
+	LoadRobuxImage(Icon)
+	
+	CreateLabel(Button, FormatNumber(Amount), UDim2.new(1, -40, 1, 0), UDim2.fromOffset(34, 0), 11, White, Enum.Font.GothamBold)
+	
+	Button.MouseEnter:Connect(function()
+		Tween(Button, FastTween, {BackgroundColor3 = Color3.fromRGB(64, 38, 96)})
+		Tween(ButtonStroke, FastTween, {Transparency = 0.2})
+	end)
+	Button.MouseLeave:Connect(function()
+		Tween(Button, FastTween, {BackgroundColor3 = CardDark})
+		Tween(ButtonStroke, FastTween, {Transparency = 0.8})
+	end)
+	Button.MouseButton1Click:Connect(function()
+		InputBox.Text = Amount
+	end)
+end
+
+-- FOOTER
+CreateLabel(Main, "PYROVEX HUB  •  UI EDITION", UDim2.fromOffset(250, 13), UDim2.fromOffset(15, 310), 8, Muted)
+CreateLabel(Main, "v1.0", UDim2.fromOffset(35, 13), UDim2.new(1, -48, 0, 310), 8, Muted)
+
+--==================================================
+-- FLOATING P BUTTON
+--==================================================
+
+local FloatingButton = Instance.new("TextButton")
+FloatingButton.Name = "PyrovexFloatingButton"
+FloatingButton.Size = UDim2.fromOffset(54, 54)
+FloatingButton.Position = UDim2.new(0, 22, 0.5, -27)
+FloatingButton.BackgroundColor3 = Color3.fromRGB(24, 14, 42)
+FloatingButton.Text = ""
+FloatingButton.AutoButtonColor = false
+FloatingButton.Visible = false
+FloatingButton.Parent = ScreenGui
+Corner(FloatingButton, 17)
+AddAnimatedBorder(FloatingButton)
+Gradient(FloatingButton, {
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(55, 28, 100)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 18, 55)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(85, 22, 50))
+}, 45)
+
+local FloatingLogo = CreateLabel(FloatingButton, "P", UDim2.fromScale(1, 1), UDim2.fromOffset(0, -1), 27, White, Enum.Font.GothamBlack)
+FloatingLogo.TextXAlignment = Enum.TextXAlignment.Center
+Stroke(FloatingButton, Color3.fromRGB(185, 120, 255), 1, 0.35)
+
+local FloatingScale = Instance.new("UIScale")
+FloatingScale.Scale = 1
+FloatingScale.Parent = FloatingButton
+
+MakeDraggable(FloatingButton, FloatingButton, function()
+	Main.Visible = true
+	FloatingButton.Visible = false
+	MainScale.Scale = 0.85
+	Tween(MainScale, PopTween, {Scale = 1})
+end)
+
+Minimize.MouseButton1Click:Connect(function()
+	Main.Visible = false
+	FloatingButton.Visible = true
+	FloatingScale.Scale = 0.65
+	Tween(FloatingScale, PopTween, {Scale = 1})
+end)
+
+MakeDraggable(Header, Main)
+Tween(MainScale, PopTween, {Scale = 1})
+end
+
+--==================================================
+-- KEY VERIFICATION
+--==================================================
+
+local KeyBusy = false
+local function VerifyKey()
+	if KeyBusy then return end
+	KeyBusy = true
+	local EnteredKey = KeyInput.Text
+	
+	if ValidKeys[EnteredKey] then
+		Status.Text = "KEY VERIFIED!"
+		Status.TextColor3 = Green
+		VerifyButton.Text = "ACCESS GRANTED"
+		task.wait(0.45)
+		LoadMainUI()
+	else
+		Status.Text = "INVALID KEY! TRY AGAIN."
+		Status.TextColor3 = Crimson
+		Tween(KeyStroke, FastTween, {Color = Crimson})
+		task.wait(0.6)
+		if KeyStroke.Parent then
+			Tween(KeyStroke, FastTween, {Color = Purple})
+		end
+		KeyBusy = false
+	end
+end
+
+VerifyButton.MouseButton1Click:Connect(VerifyKey)
+KeyInput.FocusLost:Connect(function(EnterPressed)
+	if EnterPressed then VerifyKey() end
+end)
+
+--==================================================
+-- DISCORD BUTTON
+--==================================================
+
+DiscordButton.MouseButton1Click:Connect(function()
+	local Copied = false
+	if setclipboard then
+		Copied = pcall(function() setclipboard(DiscordLink) end)
+	elseif toclipboard then
+		Copied = pcall(function() toclipboard(DiscordLink) end)
+	end
+	if Copied then
+		DiscordButton.Text = "LINK COPIED!"
+	else
+		DiscordButton.Text = "discord.gg/fUWAW9vB4"
+	end
+	task.delay(2, function()
+		if DiscordButton and DiscordButton.Parent then
+			DiscordButton.Text = "DISCORD  •  GET KEY"
+		end
+	end)
+end)
+
+--==================================================
+-- HOTKEY: F5 RESCAN
+--==================================================
+
+UserInputService.InputBegan:Connect(function(input, gp)
+	if gp then return end
+	if input.KeyCode == Enum.KeyCode.F5 then
+		if PreviewEnabled then
+			ScanTargets()
+			PreviewStatus.Text = "RESCANNED: "..#targets.." FOUND"
+			PreviewStatus.TextColor3 = Green
+			task.delay(1.5, function()
+				if PreviewStatus.Parent then
+					PreviewStatus.Text = "SPOOFER: ON"
+					PreviewStatus.TextColor3 = Green
+				end
+			end)
+		end
+	end
+end)
+
+-- INITIAL ANIMATION
+Tween(KeyScale, PopTween, {Scale = 1})
+print("[PYROVEX HUB] Premium UI Loaded")
+print("[Pyrovex Spoofer] Functions Loaded & Linked ✅")
